@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import random
 
-trans = namedtuple('trans',('s', 'a', 's_prime', 'r'))
+trans = namedtuple('trans',('s', 'a', 's_next', 'r'))
 
 
 class ExperienceReplay(object):
@@ -24,17 +24,17 @@ class ExperienceReplay(object):
 
 def optimize_model(policy_net:DQN, target_net:DQN, memory:ExperienceReplay, batch_size:int, gamma:float, device:torch.device, optim):
     if len(memory) < batch_size:
-        return
+        return policy_net, optim
+    
     transitions = memory.sample(batch_size)
     batch = trans(*zip(*transitions))
 
-    non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
-                                          batch.next_state)), device=device, dtype=torch.bool)
-    non_final_next_states = torch.cat([s for s in batch.next_state
-                                                if s is not None])
-    state_batch = torch.cat(batch.state)
-    action_batch = torch.cat(batch.action)
-    reward_batch = torch.cat(batch.reward)
+    non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.s_next)), device=device, dtype=torch.bool)
+    non_final_next_states = torch.cat([s for s in batch.s_next if s is not None])
+
+    state_batch = torch.cat(batch.s)
+    action_batch = torch.cat(batch.a)
+    reward_batch = torch.cat(batch.r)
 
     state_action_values = policy_net(state_batch).gather(1, action_batch)
 

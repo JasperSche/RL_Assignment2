@@ -102,3 +102,4 @@ for i_episode in range(num_episodes):
             episode_durations.append(t + 1)
             # plot_durations()
             break
+print('done')
