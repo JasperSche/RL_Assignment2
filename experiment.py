@@ -66,7 +66,7 @@ else:
 for i_episode in range(num_episodes):
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
-    for t in tqdm(count()):
+    for t in count():
         action = select_action(state)
         observation, reward, terminated, truncated, _ = env.step(action.item())
         reward = torch.tensor([reward], device=device)
