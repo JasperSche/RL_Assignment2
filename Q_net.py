@@ -14,3 +14,4 @@ class DQN(nn.Module):
         x = F.relu(self.input(observations))
         x = F.relu(self.h1(x))
         return self.out(x)
+    
