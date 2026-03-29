@@ -3,14 +3,13 @@ import math
 import random
 import matplotlib
 import matplotlib.pyplot as plt
-from collections import namedtuple, deque
-from itertools import count
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+from itertools import count
+from tqdm import tqdm
 from Q_net import DQN
 from utils import ExperienceReplay, optimize_model
 
@@ -20,7 +19,7 @@ device = torch.device(
     "cpu"
 )
 
-env = gym.make("CartPole-v1")
+env = gym.make("CartPole-v1", render_mode="human")
 
 BATCH_SIZE = 128
 GAMMA = 0.99
@@ -67,7 +66,7 @@ else:
 for i_episode in range(num_episodes):
     state, info = env.reset()
     state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
-    for t in count():
+    for t in tqdm(count()):
         action = select_action(state)
         observation, reward, terminated, truncated, _ = env.step(action.item())
         reward = torch.tensor([reward], device=device)
