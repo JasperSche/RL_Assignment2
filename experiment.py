@@ -116,8 +116,9 @@ while counter < budget:
             next_state = None
         else:
             next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
-        if ER:
-            memory.push(state, action, next_state, reward)
+        if not ER:
+            memory.clear()
+        memory.push(state, action, next_state, reward)
 
         state = next_state
 
@@ -138,11 +139,9 @@ while counter < budget:
         if TN:
             for key in policy_net_state_dict:
                 target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
-            target_net.load_state_dict(target_net_state_dict)
         else:
-            for key in policy_net_state_dict:
-                target_net_state_dict[key] = policy_net_state_dict[key]
-            target_net.load_state_dict(target_net_state_dict)
+            target_net_state_dict = policy_net.state_dict()
+        target_net.load_state_dict(target_net_state_dict)    
         #Depends on evaluation being viable or not
         #if counter%eval_interval == 0:
         #    eval_timesteps.append(counter)

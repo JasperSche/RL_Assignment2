@@ -22,6 +22,10 @@ class ExperienceReplay(object):
     def sample(self, batch_size):
         return random.sample(self.memory, batch_size)
 
+    def clear(self, *args):
+        """Save a transition"""
+        self.memory.clear()
+        
     def __len__(self):
         return len(self.memory)
     
