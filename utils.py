@@ -3,6 +3,10 @@ from Q_net import DQN
 import torch
 import torch.nn as nn
 import random
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import savgol_filter
+from statsmodels.nonparametric.kernel_regression import KernelReg
 
 trans = namedtuple('trans',('s', 'a', 's_next', 'r'))
 
