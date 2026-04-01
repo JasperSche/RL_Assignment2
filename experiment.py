@@ -19,19 +19,6 @@ device = torch.device(
     "cpu"
 )
 
-env = gym.make("CartPole-v1")
-
-
-
-
-    
-n_actions = env.action_space.n
-state, info = env.reset()
-n_observations = len(state)
-
-policy_net = DQN(n_observations, n_actions).to(device)
-target_net = DQN(n_observations, n_actions).to(device)
-target_net.load_state_dict(policy_net.state_dict())
 
 
 #Not implemented yet
@@ -40,7 +27,7 @@ eval_interval = 250
 ## unnessisary because thh 500th state is terminal per definition
 
 
-def epsilon_greedy(model, state, epsilon):
+def epsilon_greedy(model, state, epsilon, env):
     sample = random.random()
     if sample > epsilon:
         with torch.no_grad():
@@ -134,7 +121,6 @@ def train_dqn(
         budget = 1e5,
         gamma = 0.99,
         epsilon = 0.05,
-        tau = 5e-3,
         batch_size = 128,
         lr = 3e-4,
         TN = True,
@@ -152,7 +138,7 @@ def train_dqn(
         terminated = False
         episode_return = 0
         while counter < budget and not terminated:
-            action = epsilon_greedy(policy_net,state,epsilon)
+            action = epsilon_greedy(policy_net,state,epsilon, env=env)
             observation, reward, terminated, truncated, _ = env.step(action.item())
             terminated = terminated or truncated
             reward = torch.tensor([reward], device=device)
@@ -202,7 +188,55 @@ def train_dqn(
     return eval_timesteps, eval_returns
 
         
+#Hyperparameter testing
+net_lengths = [1,3,5]
+lr_set = np.arange(3e-5, 3e-3, 5.94e-4, dtype=float)
+epsilon_values = np.arange(0.05,0.25, 0.05, dtype=float)
+update_to_data_ratios =np.arange(2,10, 2, dtype=int)
+best_params = {"net_length":0,
+               "lr":0,
+               "epsilon":0,
+               "update_to_data_ratio":0}
+max_mean = -1
 
+
+for net_length in net_lengths:
+    for lr in lr_set:
+        for epsilon in epsilon_values:
+            for update_to_data_ratio in update_to_data_ratios:
+                curr_env = gym.make("CartPole-v1")
+                n_actions = curr_env.action_space.n
+                state, info = curr_env.reset()
+                n_observations = len(state)
+                policy_net = DQN(n_observations, n_actions, net_length).to(device)
+                target_net = DQN(n_observations, n_actions, net_length).to(device)
+                curr_eval_timesteps, curr_eval_returns = train_dqn(
+                env=curr_env,
+                policy_net=policy_net,
+                target_net=target_net,
+                update_data_ratio=update_to_data_ratio,
+                budget=10000,
+                epsilon=epsilon,
+                lr=lr,
+                TN=True,
+                ER=True,
+                )
+                if np.mean(curr_eval_returns) > max_mean:
+                    max_mean = np.mean(curr_eval_returns)
+                    best_params["net_length"] = net_length
+                    best_params["lr"] = lr
+                    best_params["epsilon"] = epsilon
+                    best_params["update_to_data_ratio"] = update_to_data_ratio
+                print(best_params)
+                
+
+env = gym.make("CartPole-v1")   
+n_actions = env.action_space.n
+state, info = env.reset()
+n_observations = len(state)
+policy_net = DQN(n_observations, n_actions).to(device)
+target_net = DQN(n_observations, n_actions).to(device)
+target_net.load_state_dict(policy_net.state_dict())
 
 eval_timesteps, eval_returns = train_dqn(
     env=env,
@@ -211,6 +245,8 @@ eval_timesteps, eval_returns = train_dqn(
     TN=True,
     ER=False,
 )
+
+
 df = pd.DataFrame({"eval_timesteps": eval_timesteps, "eval_returns":eval_returns})
 df.to_csv('Data.csv')
 print('done')
