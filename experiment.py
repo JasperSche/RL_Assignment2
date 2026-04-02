@@ -184,7 +184,7 @@ def train_dqn(
                 eval_timesteps.append(counter)
                 episode_return = evla_policy(policy_net)
                 eval_returns.append(episode_return)
-                print(f'Episode return: {episode_return}')
+                #print(f'Episode return: {episode_return}')
     return eval_timesteps, eval_returns
 
         
@@ -227,21 +227,24 @@ for net_length in net_lengths:
                     best_params["lr"] = lr
                     best_params["epsilon"] = epsilon
                     best_params["update_to_data_ratio"] = update_to_data_ratio
-                print(best_params)
-                
+                    print(best_params)
+print("Finished parameter testing")                
 
 env = gym.make("CartPole-v1")   
 n_actions = env.action_space.n
 state, info = env.reset()
 n_observations = len(state)
-policy_net = DQN(n_observations, n_actions).to(device)
-target_net = DQN(n_observations, n_actions).to(device)
+policy_net = DQN(n_observations, n_actions, n_layers=best_params["net_length"]).to(device)
+target_net = DQN(n_observations, n_actions, n_layers=best_params["net_length"]).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 eval_timesteps, eval_returns = train_dqn(
     env=env,
     policy_net=policy_net,
     target_net=target_net,
+    epsilon=best_params["epsilon"],
+    lr=best_params["lr"],
+    update_data_ratio=best_params["update_to_data_ratio"],
     TN=True,
     ER=False,
 )
