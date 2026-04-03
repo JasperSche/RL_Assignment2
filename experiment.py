@@ -189,16 +189,16 @@ def train_dqn(
 
         
 #Hyperparameter testing
-net_lengths = [1,3,5]
+net_lengths = [1,2,3]
 lr_set = np.arange(3e-5, 3e-3, 5.94e-4, dtype=float)
-epsilon_values = np.arange(0.05,0.25, 0.05, dtype=float)
+epsilon_values = np.arange(0.05,0.20, 0.05, dtype=float)
 update_to_data_ratios =np.arange(2,10, 2, dtype=int)
 best_params = {"net_length":0,
                "lr":0,
                "epsilon":0,
                "update_to_data_ratio":0}
 max_mean = -1
-
+random.seed(120)
 
 for net_length in net_lengths:
     for lr in lr_set:
@@ -229,7 +229,6 @@ for net_length in net_lengths:
                     best_params["update_to_data_ratio"] = update_to_data_ratio
                     print(best_params)
 print("Finished parameter testing")                
-
 env = gym.make("CartPole-v1")   
 n_actions = env.action_space.n
 state, info = env.reset()
@@ -246,7 +245,7 @@ eval_timesteps, eval_returns = train_dqn(
     lr=best_params["lr"],
     update_data_ratio=best_params["update_to_data_ratio"],
     TN=True,
-    ER=False,
+    ER=True,
 )
 
 
