@@ -17,7 +17,7 @@ device = torch.device(
 
 net_lengths = [1,2,3]
 lr_set = [1e-3,6.25e-5,1e-7]
-epsilon_values = [0.1, 0.05, 0.1]
+epsilon_values = [0.1,0.05,0.01 ]
 update_to_data_ratios = [10,100,1000]
 
 n_actions = 2
