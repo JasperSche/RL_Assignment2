@@ -6,6 +6,7 @@ from Q_net import DQN
 from agent import train_dqn
 import pandas as pd
 import os
+from tqdm import tqdm
 
 
 device = torch.device(
@@ -16,8 +17,8 @@ device = torch.device(
 
 net_lengths = [1,2,3]
 lr_set = [1e-3,6.25e-5,1e-7]
-epsilon_values = [1e-1, 0.05, 0.1]
-update_to_data_ratios = [100,1000,10000]
+epsilon_values = [0.1, 0.05, 0.1]
+update_to_data_ratios = [10,100,1000]
 
 n_actions = 2
 n_observations = 4
@@ -32,7 +33,7 @@ for net_length in net_lengths:
                 if not os.path.exists(file_path):
                     print(f'Running experiment: Net_size:{net_length} Lr:{lr} Epsilon:{epsilon} Update/Data Ratio:{update_to_data_ratio}')
                     results = []
-                    for i in range(5):
+                    for i in tqdm(range(5)):
                         curr_env = gym.make("CartPole-v1")
                         policy_net = DQN(n_observations, n_actions, net_length).to(device)
                         target_net = DQN(n_observations, n_actions, net_length).to(device)
@@ -44,7 +45,7 @@ for net_length in net_lengths:
                             target_net=target_net,
                             device=device,
                             update_data_ratio=update_to_data_ratio,
-                            budget=10000,
+                            budget=20000,
                             epsilon=epsilon,
                             lr=lr,
                             TN=True,
