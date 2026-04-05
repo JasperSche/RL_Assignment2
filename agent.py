@@ -7,6 +7,8 @@ import torch.optim as optim
 from collections import namedtuple, deque
 import random
 from Q_net import DQN
+from tqdm import tqdm
+import time
 
 trans = namedtuple('trans',('s', 'a', 's_next', 'r'))
 
@@ -39,9 +41,9 @@ def epsilon_greedy(model, state, epsilon, env, device):
     else:
         return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
 
-def evla_policy(policy_net, device, eval_iterations = 20):
-    eval_env = gym.make("CartPole-v1")
+def evla_policy(policy_net, device, eval_iterations = 3):
     episode_returns = []
+    eval_env = gym.make("CartPole-v1")
     for _ in range(eval_iterations):
         episode_return = 0
         s,_ = eval_env.reset()
@@ -138,6 +140,7 @@ def train_dqn(
     eval_timesteps = []
     eval_returns = []
     counter = 0
+    pbar = tqdm(total=budget)
     if not TN: update_data_ratio = 1
     while counter < budget:
         state, _ = env.reset()
@@ -181,12 +184,14 @@ def train_dqn(
                     device=device,
                     optim=optimizer
                 )
+           
             if counter % update_data_ratio == 0:
                 target_net.load_state_dict(policy_net.state_dict())
 
             counter += 1
 
             if counter % eval_rate == 0:
+                pbar.update(eval_rate)
                 eval_timesteps.append(counter)
                 eval_return = evla_policy(policy_net, device)
                 eval_returns.append(eval_return)

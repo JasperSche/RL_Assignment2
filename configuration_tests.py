@@ -1,1 +1,0 @@
-#TODO Testing training with/without TN and ER and best params from abalation study
