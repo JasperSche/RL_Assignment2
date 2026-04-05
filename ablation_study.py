@@ -16,9 +16,9 @@ device = torch.device(
 )
 
 net_lengths = [1,2,3]
-lr_set = [1e-3,1e-4,1e-6,6.25e-5,1e-7]
+lr_set = [1e-3,1e-4,6.25e-5,1e-6,1e-7]
 epsilon_values = [0.1,0.05,0.01 ]
-update_to_data_ratios = [10,100,1000]
+update_to_data_ratios = [10,100,500,1000]
 
 n_actions = 2
 n_observations = 4
@@ -61,3 +61,63 @@ for net_length in net_lengths:
                         "eval_std_returns":np.std(results, axis=0)
                         })
                     df.to_csv(file_path)
+
+
+ablation_results = []
+for net_length in net_lengths:
+    for lr in lr_set:
+        for epsilon in epsilon_values:
+            for update_to_data_ratio in update_to_data_ratios:
+                file_path = f'Results/Results_{net_length}_{lr}_{epsilon}_{update_to_data_ratio}.csv'
+                ## Grade settings based on Performance (avg return) Effifciency (avg gain) and stability(std over last 10 evaluations)
+                df = pd.read_csv(file_path)
+                mean_returns = df['eval_mean_returns'].to_numpy()
+                std_returns = df['eval_std_returns'].to_numpy()
+                ablation_results.append(
+                    {
+                        'net_depth':net_length,
+                        'learning_rate':lr,
+                        'epsilon':epsilon,
+                        'update_to_data_ratio':update_to_data_ratio,
+                        'avg_return':np.mean(mean_returns),
+                        # 'avg_return_gain':np.mean([mean_returns[idx]-mean_returns[idx-1] for idx in range(1,len(mean_returns))]),
+                        'avg_std_last_10':np.mean(std_returns[-10])
+                    }
+                )
+
+results = pd.DataFrame(ablation_results)
+# print(results)
+
+###Show results:
+import matplotlib as plt
+import matplotlib.pyplot as plt
+
+def plot_avarages(setting_name:str):
+    returns = []
+    std_last_10 = []
+    uniqe_settings = sorted(np.unique(results[setting_name]))
+    for setting in uniqe_settings:
+        returns.append(results[results[setting_name] == setting]['avg_return'].mean())
+        std_last_10.append(results[results[setting_name] == setting]['avg_std_last_10'].mean())
+    fig, ax = plt.subplots()
+    ax1 = ax.twinx()
+    ax.set_xlabel('Setting values')
+    ax.set_ylabel('Average Returns')
+    ax1.set_ylabel('Average standart deviation over last 10 runs')
+    ax.set_title(f'Ablation Study {setting_name} result')
+
+    lns1 = ax.plot(uniqe_settings, returns, color='red', label = 'Avg Returns')
+    lns2 = ax1.plot(uniqe_settings, std_last_10, label = 'Std. last 10 returns')
+    leg = lns1 + lns2
+    labs = [l.get_label() for l in leg]
+    ax.legend(leg, labs, loc=0)
+    plt.savefig(f"Ablation_Plots/{setting_name}_result.png", dpi=300, bbox_inches='tight')
+    plt.show()
+
+plot_avarages('net_depth')
+plot_avarages('learning_rate')
+plot_avarages('epsilon')
+plot_avarages('update_to_data_ratio')
+
+
+
