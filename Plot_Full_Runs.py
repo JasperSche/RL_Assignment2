@@ -3,7 +3,7 @@ import csv
 import os
 import numpy as np
 from scipy.signal import savgol_filter
-plot_titles = ['TN&ER','TN','ER','Naive']
+plot_titles = ['ER','TN&ER','Naive','TN']
 x_list = []
 y_list = []
 std_list = []
