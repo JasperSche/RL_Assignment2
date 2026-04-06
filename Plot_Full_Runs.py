@@ -3,7 +3,7 @@ import csv
 import os
 import numpy as np
 from scipy.signal import savgol_filter
-plot_titles = ['TN','ER','Naive']
+plot_titles = ['TN&ER','TN','ER','Naive']
 x_list = []
 y_list = []
 std_list = []
@@ -31,7 +31,7 @@ while index < len(files):
         y_list.append(y)
         std_list.append(std)
     index +=1
-smoothing_window = 33
+smoothing_window = 81
 #learning_curve = smooth(learning_curve,smoothing_window) # additional smoothing
 
 fig, ax = plt.subplots()
@@ -52,5 +52,5 @@ for i in range(len(x_list)):
 
 labs = [l.get_label() for l in leg]    
 ax.legend(leg, labs, loc=0)    
-plt.savefig(f"Full_Run_Results/test_result.png", dpi=300, bbox_inches='tight')
+plt.savefig(f"Full_Run_Results/result_smoothing{smoothing_window}.png", dpi=300, bbox_inches='tight')
 plt.show()
