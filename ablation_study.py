@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import gymnasium as gym
 import random
-from Q_net import DQN
+from q_net import DQN
 from agent import train_dqn
 import pandas as pd
 import os

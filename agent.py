@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import namedtuple, deque
 import random
-from Q_net import DQN
+from q_net import DQN
 from tqdm import tqdm
 import time
 

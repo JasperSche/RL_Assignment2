@@ -2,7 +2,7 @@ from tqdm import tqdm
 import numpy as np
 import torch
 import gymnasium as gym
-from Q_net import DQN
+from q_net import DQN
 from agent import train_dqn
 import pandas as pd
 from tqdm import tqdm
