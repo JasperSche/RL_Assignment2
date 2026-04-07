@@ -41,4 +41,4 @@ curr_eval_timesteps, curr_eval_returns = train_dqn(
 )
 ```
 ## Dependencies
-For testing and conducting our experiments we used a conda envrionment. All its dependencys are given in the `requirements.txt` file.
+For testing and conducting our experiments we used a conda environment. All its dependencys are given in the `requirements.txt` file.
