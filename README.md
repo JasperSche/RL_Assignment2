@@ -30,7 +30,7 @@ curr_eval_timesteps, curr_eval_returns = train_dqn(
     env=env,
     policy_net=policy_net,
     target_net=target_net,
-    device=device,
+    device="cpu", #set to "cuda" if torch.cuda.is_available() == True
     update_data_ratio=100,
     budget=1e6,
     epsilon=0.05,
