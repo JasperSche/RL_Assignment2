@@ -9,7 +9,6 @@ The configurations experiment is contained in the `configuration_tests.py` file.
 In order to train an agent, please do the following:
 1. Import required libaries
 ```Python
-import torch
 import gymnasium as gym
 from q_net import DQN
 from agent import train_dqn
@@ -41,3 +40,5 @@ curr_eval_timesteps, curr_eval_returns = train_dqn(
     eval_rate=250
 )
 ```
+## Dependencies
+For testing and conducting our experiments we used a conda envrionment. All its dependencys are given in the `requirements.txt` file.
