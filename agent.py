@@ -72,17 +72,17 @@ def optimize_model(policy_net:DQN, target_net:DQN, memory:ExperienceReplay, batc
     non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.s_next)), device=device, dtype=torch.bool)
     non_final_next_states = torch.cat([s for s in batch.s_next if s is not None])
 
-    state_batch = torch.cat(batch.s)
-    action_batch = torch.cat(batch.a)
-    reward_batch = torch.cat(batch.r)
+    s = torch.cat(batch.s)
+    a = torch.cat(batch.a)
+    r = torch.cat(batch.r)
 
-    state_action_values = policy_net(state_batch).gather(1, action_batch)
+    state_action_values = policy_net(s).gather(1, a)
 
     next_state_values = torch.zeros(batch_size, device=device)
     with torch.no_grad():
         next_state_values[non_final_mask] = target_net(non_final_next_states).max(1).values
 
-    expected_state_action_values = (next_state_values * gamma) + reward_batch
+    expected_state_action_values = (next_state_values * gamma) + r
 
     criterion = nn.MSELoss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
